@@ -23,11 +23,11 @@ struct HeaderDep {
 }
 
 struct Cell {
+    CellOutput cellOutput;
+    bytes      cellData;
     bool       isConsumed;
     uint64     createdNumber;
     uint64     consumedNumber;
-    CellOutput cellOutput;
-    bytes      cellData;
 }
 
 struct CellOutput {
