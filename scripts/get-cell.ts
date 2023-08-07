@@ -11,9 +11,6 @@ async function main() {
 
     const res = await (await getCell.testGetCell(txHash, index, {gasLimit: 100000})).wait();
     console.log("res: %o\n", res);
-
-    const cell = await getCell.getCell();
-    console.log("cell: %o", cell);
 }
 
 main().catch((error) => {
