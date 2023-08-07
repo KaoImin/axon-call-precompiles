@@ -37,21 +37,15 @@ struct CellOutput {
 }
 
 struct Script {
-    ScriptHashType hashType;
-    bytes32        codeHash;
-    bytes          args;
+    bytes32  codeHash;
+    uint8    hashType;
+    bytes    args;
 }
 
 struct WitnessArgs {
     bytes lock;
     bytes inputType;
     bytes outputType;
-}
-
-enum ScriptHashType {
-    Data,
-    Type,
-    Data1
 }
 
 struct Header {
