@@ -1,9 +1,8 @@
 # Start Axon
 
 ```
-git clone git@github.com:axonweb3/axon.git
+git clone -b refactor-precompile-input https://github.com/axonweb3/axon.git
 cd axon
-git checkout -b origin/refactor-precompile-input
 cargo run -- run -c devtools/chain/config.toml -s devtools/chain/specs/single_node/chain-spec.toml
 ```
 
