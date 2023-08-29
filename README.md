@@ -2,6 +2,7 @@
 
 ```
 git clone git@github.com:axonweb3/axon.git
+git checkout -b origin/refactor-precompile-input
 cargo run -- run -c devtools/chain/config.toml -g devtools/chain/genesis_single_node.json
 ```
 
