@@ -3,8 +3,10 @@ import { ethers } from "hardhat";
 async function main() {
     const CallCkbVm = await ethers.getContractFactory("CallCkbVm");
     const callCkbVm = await CallCkbVm.deploy();
-    await callCkbVm.deployed();
+    await callCkbVm.waitForDeployment();
+    console.log("CallCkbVm Contract Address:", await callCkbVm.getAddress());
 
+    // The ed25519 binary is stored in the follwing CKB transaction.
     const txHash = "0xb1af175009413bf9670dffb7b120f0eca52896a9798bda123df9b25ff7d8f721";
     const index = 0;
     const depType = 0;
@@ -15,7 +17,9 @@ async function main() {
         new Uint8Array([70, 60, 17, 132, 4, 95, 202, 82, 134, 230, 36, 5, 51, 71, 14, 236, 107, 214, 42, 238, 115, 44, 183, 210, 54, 214, 174, 60, 189, 86, 220, 247, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]),
     ];
 
-    const res = await (await callCkbVm.testCallCkbVm(txHash, index, depType, args, {gasLimit: 5000000})).wait();
+    const res = await (await callCkbVm.testCallCkbVm(
+        txHash, index, depType, args, { gasLimit: 50000 })
+    ).wait();
     console.log("res: %o\n", res);
 
     const exitCode = await callCkbVm.callCkbVm();

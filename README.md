@@ -1,21 +1,20 @@
 # Start Axon
 
-```
+```bash
 git clone -b refactor-precompile-input https://github.com/axonweb3/axon.git
 cd axon
-cargo run -- run -c devtools/chain/config.toml -s devtools/chain/specs/single_node/chain-spec.toml
+cargo run -- run \
+  --config=devtools/chain/config.toml \
+  --chain-spec=devtools/chain/specs/single_node/chain-spec.toml
 ```
 
 # Start Emitter
 
-```
-git clone https://github.com/axonweb3/emitter.git
+```bash
+git clone -b joyid-debug https://github.com/axonweb3/emitter.git
 cd emitter
-git checkout joyid-debug
-cd emitter
-touch scan_state
-
-cargo run -- -s ./ -c https://testnet.ckb.dev --i http://127.0.0.1:8000
+touch emitter/scan_state
+cargo run -- -s ./ -c https://testnet.ckb.dev/rpc --i http://127.0.0.1:8000
 ```
 
 Register the cell containing ed25519 contract binary.
@@ -39,12 +38,13 @@ echo '{
 ```
 
 # Test contract
-```
+```bash
 yarn
-npx hardhat run scripts/call-ckb-vm.ts --network axon
+yarn compile
+yarn script:call-ckb-vm
 ```
 
-output
+## Output
 ```
 res: {
   to: '0xC53e7144D3Ca6c921838819Fd897D07a6bC81249',

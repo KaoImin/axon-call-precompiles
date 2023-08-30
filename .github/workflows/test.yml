@@ -1,0 +1,102 @@
+name: Test Call CKB
+
+on:
+  push:
+  pull_request:
+  merge_group:
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout axon-call-precompiles
+      uses: actions/checkout@v3
+    - name: Checkout axonweb3/axon
+      uses: actions/checkout@v3
+      with:
+        ref: refactor-precompile-input
+        repository: axonweb3/axon
+        path: components/axon
+    - name: Checkout axonweb3/emitter
+      uses: actions/checkout@v3
+      with:
+        ref: joyid-debug
+        repository: axonweb3/emitter
+        path: components/emitter
+
+    - name: Cache of Cargo
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          components/axon/target/
+          components/emitter/target/
+        key: ubuntu-22.04-${{ runner.os }}-${{ runner.arch }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ runner.arch }}-cargo
+
+    - name: Build axonweb3/axon
+      working-directory: components/axon
+      run: cargo build
+
+    - name: Build axonweb3/emitter
+      working-directory: components/emitter
+      run: cargo build
+
+    - name: Start Axon
+      working-directory: components/axon
+      run: |
+        cargo run -- run \
+          --config=devtools/chain/config.toml \
+          --chain-spec=devtools/chain/specs/single_node/chain-spec.toml \
+          > ${{ runner.temp }}/axon.log &
+
+    - name: Start Emitter
+      working-directory: components/emitter
+      run: |
+        touch emitter/scan_state
+        cargo run -- \
+          -s ./ \
+          -c https://testnet.ckb.dev/rpc \
+          --i http://127.0.0.1:8000 \
+          > ${{ runner.temp }}/emitter.log &
+
+    - name: Register the cell containing ed25519 contract binary
+      run: |
+        echo '{
+          "id": 2,
+          "jsonrpc": "2.0",
+          "method": "register",
+          "params": [
+              {
+                  "script": {
+                      "code_hash": "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
+                      "hash_type": "type",
+                      "args": "0x58b85c196e5fe80e25b4dab596e7121d219f79fb"
+                  },
+                  "script_type": "lock"
+              },
+              "0x4d7d71"
+          ]
+        }' | curl -H 'content-type: application/json' -d @- http://localhost:8120
+
+    - name: Test CallCkbVm contract
+      run: |
+        node -v
+        yarn
+        yarn compile
+        yarn script:call-ckb-vm | tee ${{ runner.temp }}/call-ckb-vm.log
+
+    - name: Archive logs
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: axon-call-precompiles-logs
+        path: |
+          ${{ runner.temp }}/axon.log
+          ${{ runner.temp }}/emitter.log
+          ${{ runner.temp }}/call-ckb-vm.log
