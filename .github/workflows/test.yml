@@ -64,6 +64,7 @@ jobs:
           -c https://testnet.ckb.dev/rpc \
           --i http://127.0.0.1:8000 \
           > ${{ runner.temp }}/emitter.log &
+        cat ${{ runner.temp }}/emitter.log
 
     - name: Register the cell containing ed25519 contract binary
       run: |
