@@ -93,7 +93,7 @@ jobs:
         yarn script:call-ckb-vm | tee ${{ runner.temp }}/call-ckb-vm.log
 
     - name: Archive logs
-      if: failure()
+      if: always()
       uses: actions/upload-artifact@v3
       with:
         name: axon-call-precompiles-logs
