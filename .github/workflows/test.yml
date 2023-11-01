@@ -6,7 +6,10 @@ on:
   merge_group:
 
 jobs:
-  test:
+  call-ckb-vm:
+    strategy:
+      matrix:
+        axon_version: ['v0.2.0-beta.2', 'main']
     runs-on: ubuntu-22.04
 
     steps:
@@ -18,6 +21,7 @@ jobs:
         ref: refactor-precompile-input
         repository: axonweb3/axon
         path: components/axon
+        ref: ${{ matrix.axon_version }}
     - name: Checkout axonweb3/emitter
       uses: actions/checkout@v4
       with:
