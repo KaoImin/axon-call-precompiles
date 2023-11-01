@@ -8,6 +8,7 @@ on:
 jobs:
   call-ckb-vm:
     strategy:
+      fail-fast: false
       matrix:
         axon_version: ['v0.2.0-beta.2', 'main', 'refactor-precompile-input']
     runs-on: ubuntu-22.04
