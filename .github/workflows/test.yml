@@ -6,20 +6,24 @@ on:
   merge_group:
 
 jobs:
-  test:
+  call-ckb-vm:
+    strategy:
+      fail-fast: false
+      matrix:
+        axon_version: ['v0.2.0-beta.2', 'main', 'refactor-precompile-input']
     runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout axon-call-precompiles
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Checkout axonweb3/axon
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
-        ref: refactor-precompile-input
+        ref: ${{ matrix.axon_version }}
         repository: axonweb3/axon
         path: components/axon
     - name: Checkout axonweb3/emitter
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: joyid-debug
         repository: axonweb3/emitter
@@ -50,10 +54,20 @@ jobs:
     - name: Start Axon
       working-directory: components/axon
       run: |
-        cargo run -- run \
-          --config=devtools/chain/config.toml \
-          --chain-spec=devtools/chain/specs/single_node/chain-spec.toml \
-          > ${{ runner.temp }}/axon.log &
+        target/debug/axon --version | tee ${{ runner.temp }}/axon.log
+
+        target/debug/axon init \
+          --config     devtools/chain/config.toml \
+          --chain-spec devtools/chain/specs/single_node/chain-spec.toml \
+          | tee -a ${{ runner.temp }}/axon.log
+        target/debug/axon run \
+          --config     devtools/chain/config.toml \
+          | tee -a ${{ runner.temp }}/axon.log &
+
+        npx zx <<'EOF'
+        import { waitXBlocksPassed } from './devtools/ci/scripts/helper.js'
+        await retry(3, '6s', () => waitXBlocksPassed('http://127.0.0.1:8000', 2))
+        EOF
 
     - name: Start Emitter
       working-directory: components/emitter
@@ -63,7 +77,8 @@ jobs:
           -s ./ \
           -c https://testnet.ckb.dev/rpc \
           --i http://127.0.0.1:8000 \
-          > ${{ runner.temp }}/emitter.log &
+          | tee -a ${{ runner.temp }}/emitter.log &
+        sleep 2 && cat ${{ runner.temp }}/emitter.log
 
     - name: Register the cell containing ed25519 contract binary
       run: |
@@ -92,7 +107,7 @@ jobs:
         yarn script:call-ckb-vm | tee ${{ runner.temp }}/call-ckb-vm.log
 
     - name: Archive logs
-      if: failure()
+      if: always()
       uses: actions/upload-artifact@v3
       with:
         name: axon-call-precompiles-logs

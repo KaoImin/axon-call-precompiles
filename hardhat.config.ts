@@ -1,15 +1,17 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 
-const AXON_PRIVATE_KEY = "0x37aa0f893d05914a4def0460c0a984d3611546cfb26924d7a7ca6e0db9950a2d";
-
 const config: HardhatUserConfig = {
     solidity: "0.8.17",
     networks: {
         axon: {
-            chainId: 2022,
             url: "http://127.0.0.1:8000",
-            accounts: [AXON_PRIVATE_KEY],
+            // Axon devnet's accounts since the genesis block
+            // See https://github.com/axonweb3/axon/blob/88c9a913/devtools/chain/specs/single_node/chain-spec.toml#L18C3-L21
+            accounts: {
+                mnemonic: "test test test test test test test test test test test junk",
+                count: 10, // the number of accounts to derive
+            },
             allowUnlimitedContractSize: true,
         }
     }

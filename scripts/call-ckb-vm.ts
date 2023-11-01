@@ -18,7 +18,7 @@ async function main() {
     ];
 
     const res = await (await callCkbVm.testCallCkbVm(
-        txHash, index, depType, args, { gasLimit: 50000 })
+        txHash, index, depType, args, { gasLimit: 500000 })
     ).wait();
     console.log("res: %o\n", res);
 

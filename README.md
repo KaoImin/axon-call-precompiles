@@ -1,11 +1,16 @@
-# Start Axon
+# [Start Axon](https://github.com/axonweb3/axon/#compile-from-source)
 
 ```bash
-git clone -b refactor-precompile-input https://github.com/axonweb3/axon.git
-cd axon
-cargo run -- run \
-  --config=devtools/chain/config.toml \
-  --chain-spec=devtools/chain/specs/single_node/chain-spec.toml
+# Clone the Axon repository from GitHub
+git clone --depth=1 https://github.com/axonweb3/axon.git && cd axon
+# Build Axon in release mode
+cargo build --release
+# Initialize the chain
+target/release/axon init \
+    --config     devtools/chain/config.toml \
+    --chain-spec devtools/chain/specs/single_node/chain-spec.toml
+# Start a single Axon node
+target/release/axon run --config devtools/chain/config.toml
 ```
 
 # Start Emitter
