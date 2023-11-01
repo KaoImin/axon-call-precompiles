@@ -9,7 +9,7 @@ jobs:
   call-ckb-vm:
     strategy:
       matrix:
-        axon_version: ['v0.2.0-beta.2', 'main']
+        axon_version: ['v0.2.0-beta.2', 'main', 'refactor-precompile-input']
     runs-on: ubuntu-22.04
 
     steps:
@@ -18,10 +18,9 @@ jobs:
     - name: Checkout axonweb3/axon
       uses: actions/checkout@v4
       with:
-        ref: refactor-precompile-input
+        ref: ${{ matrix.axon_version }}
         repository: axonweb3/axon
         path: components/axon
-        ref: ${{ matrix.axon_version }}
     - name: Checkout axonweb3/emitter
       uses: actions/checkout@v4
       with:
